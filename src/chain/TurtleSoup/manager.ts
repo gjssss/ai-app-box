@@ -3,8 +3,6 @@ import { generateId, generateObject } from 'ai'
 import { z } from 'zod'
 import { GenerateStoryPrompt, GenerateStorySystemPrompt } from './prompt'
 
-console.log('init')
-
 const storyList: {
   id: string
   title: string
@@ -36,7 +34,6 @@ export async function createStory() {
   })
   const id = generateId()
   storyList.push({ id, ...story })
-  console.log(JSON.stringify(story, null, 2))
   return id
 }
 
