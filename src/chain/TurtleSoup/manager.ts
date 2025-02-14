@@ -40,8 +40,8 @@ export async function getStory(id: number) {
     return
   return {
     id: res.id,
-    title: res.title,
-    story: res.story,
-    answer: res.answer,
+    title: res.title!,
+    story: res.story!,
+    answer: res.answer!,
   }
 }

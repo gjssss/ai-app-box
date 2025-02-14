@@ -11,7 +11,7 @@ export async function turtleSoupApp({
   messages: any[]
 }) {
   const model = deepseek('deepseek-chat')
-  const story = getStory(id)
+  const story = await getStory(Number.parseInt(id))
   if (!story)
     return
   return streamText({
