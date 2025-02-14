@@ -6,6 +6,7 @@ export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get('id')
   if (!id)
     return NextResponse.error()
-  const story = getStory(id)
+  const story = await getStory(Number.parseInt(id))
+
   return NextResponse.json({ story })
 }
