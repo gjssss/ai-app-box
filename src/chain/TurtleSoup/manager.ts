@@ -1,23 +1,36 @@
-import { generateText } from 'ai'
+import process from 'node:process'
+import { deepseek } from '@ai-sdk/deepseek'
+import { streamText } from 'ai'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '~/db'
 import { turtleSoup } from '~/db/schema/turtle-soup'
 import { extractJSONCodeBlocks } from '~/lib/extract/json'
-import { siliconFlow } from '~/provider/siliconFlow'
 import { generateMessages } from './prompt'
 
 export async function createStory() {
-  const model = siliconFlow('deepseek-ai/DeepSeek-R1')
-
-  const { text } = await generateText({
+  const model = deepseek('deepseek-reasoner')
+  // eslint-disable-next-line no-console
+  console.log('start')
+  const result = streamText({
     model,
     messages: generateMessages,
-    temperature: 1.5,
+    temperature: 1,
   })
+  for await (const message of result.fullStream) {
+    const mes = message as any
+    if (mes.textDelta)
+      process.stdout.write(mes.textDelta)
+  }
+  const text = (await result.text).trim()
+  if (!text)
+    return 0
   // eslint-disable-next-line no-console
   console.log(text)
-  const story: typeof turtleSoup.$inferInsert = JSON.parse(extractJSONCodeBlocks(text)[0])
+  const extracted = extractJSONCodeBlocks(text)[0]
+  if (!extracted)
+    return 0
+  const story: typeof turtleSoup.$inferInsert = JSON.parse(extracted)
   const storySchema = z.object({
     title: z.string(),
     story: z.string(),
@@ -44,4 +57,14 @@ export async function getStory(id: number) {
     story: res.story!,
     answer: res.answer!,
   }
+}
+
+export async function listStories() {
+  const res = await db.query.turtleSoup.findMany()
+  return res.map(r => ({
+    id: r.id,
+    title: r.title!,
+    story: r.story!,
+    answer: r.answer!,
+  }))
 }

@@ -93,6 +93,10 @@ export const generateMessages: CoreMessage[] = [
 \`\`\`
     `,
   },
+  {
+    role: 'user',
+    content: '请生成一个海龟汤谜题',
+  },
 ]
 
 export const TurtleSoupHost = `
